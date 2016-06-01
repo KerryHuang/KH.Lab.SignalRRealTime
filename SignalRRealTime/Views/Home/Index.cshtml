@@ -1,0 +1,44 @@
+﻿<h2>聊天室</h2>
+<div class="container">
+    <input type="text" id="name" class="form-control" placeholder="姓名" />
+    <input type="text" id="message" class="form-control" placeholder="輸入內容" />
+    <input type="button" id="sendmessage" value="Send" class="btn btn-primary" />
+    <ul id="discussion"></ul>
+</div>
+@section scripts {
+    <script src="~/Scripts/jquery.signalR-2.2.0.min.js"></script>
+    <script src="~/signalr/hubs"></script>
+    <script>
+        $(function () {
+            // 建立對應server端Hub class的物件，請注意testHubs的第一個字母要改成小寫
+            var testHub = $.connection.testHubs;
+            // 定義client端的javascript function，供server端hub，透過dynamic的方式，呼叫所有Clients的javascript function
+            testHub.client.addNewMessageToPage = function (name, message) {
+                $('#discussion').append('<li><strong>' + htmlEncode(name)
+                    + '</strong>: ' + htmlEncode(message) + '</li>');
+            };
+            $('#message').focus();
+            // 把connection打開
+            $.connection.hub.start().done(function () {
+                $('#sendmessage').click(function () {
+                    // 呼叫server端的Hub物件，將#message資料傳給server
+                    testHub.server.send($('#name').val(), $('#message').val());
+                    $('#message').val('').focus();
+                });
+            });
+        });
+
+        function htmlEncode(value) {
+            var encodedValue = $('<div />').text(value).html();
+            return encodedValue;
+        }
+    </script>
+}
+
+@*
+1. 先引用 jQuery 與 signalR 的 js 檔。
+2. 很重要的一個步驟：加入一個 js 參考，其路徑為「根目錄/signalr/hubs」。 SignalR 會建立相關的 JavaScript，放置於此。
+3. 透過 $.connection.『server 端的 HubName』，即可建立對應該 hub 的 proxy object。要注意，首字母需小寫。
+4. 定義 client 端上，供 server 端通知的 JavaScript function，這邊的範例是 addMessage。
+5. 當按下送出按鈕時，呼叫 server 端的 SendMessage() 方法，只需要直接透過 proxy object 即可。要注意，首字母需小寫。
+6. 記得透過 $.connection.hub.start() ，把 connection 打開。*@
