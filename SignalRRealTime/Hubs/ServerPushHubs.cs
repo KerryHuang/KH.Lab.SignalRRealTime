@@ -54,14 +54,13 @@ namespace SignalRRealTime.Hubs
         private string GetNewMessage(string uid)
         {
             Thread.Sleep(3000);
-            return string.Format("message from xxx to {0}  ({1})", uid, DateTime.Now);
-
+            return string.Format("您好 {0} ，目前時間是： ({1})", uid, DateTime.Now);
         }
 
         private string GetSystemNotification()
         {
             if (new Random().Next(6) >= 5)
-                return "system will shutdown for maintenance";
+                return "您有一封新的訊息";
             else
                 return string.Empty;
         }

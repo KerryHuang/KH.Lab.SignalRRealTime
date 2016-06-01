@@ -1,17 +1,43 @@
-﻿@{
-    ViewBag.Title = "Contact";
+﻿<span>通知</span>
+<form id="form1">
+    <div>
+        <div>
+            <span>ID:</span>
+            <input type="text" id="uid" name="uid" value="" class="form-control" />
+            <input type="button" id="sendmessage" value="Send" class="btn btn-primary" />
+            <input type="button" id="disconnect" value="Disconnect" class="btn btn-primary" />
+        </div>
+        <ul id="messages"></ul>
+    </div>
+</form>
+@section scripts {
+    <script src="~/Scripts/jquery.signalR-2.2.0.min.js"></script>
+    <script src="~/signalr/hubs"></script>
+    <script src="~/Scripts/notification.js"></script>
+    <script>
+        $(function () {
+
+            // Proxy created on the fly
+            var conn = $.connection.serverPushHubs;
+            // Declare a function so the server can invoke it
+            conn.client.newMessage = function (msg) {
+                $('#messages').append('<li>' + msg + '</li>');
+            };
+            conn.client.notify = function (notice) {
+                //$('#messages').append('<li>[system notice]:\t' + notice + '</li>');
+                setMessage(notice);
+            }
+            // Start the connection
+            $.connection.hub.start();
+            //call server side refresh when all things ready
+            $("#sendmessage").click(function () {
+                conn.server.refreshTimeline($('#uid').val());
+            });
+
+            $("#disconnect").click(function () {
+                conn.server.disconnect();
+            });
+
+        });
+    </script>
 }
-<h2>@ViewBag.Title.</h2>
-<h3>@ViewBag.Message</h3>
-
-<address>
-    One Microsoft Way<br />
-    Redmond, WA 98052-6399<br />
-    <abbr title="Phone">P:</abbr>
-    425.555.0100
-</address>
-
-<address>
-    <strong>Support:</strong>   <a href="mailto:Support@example.com">Support@example.com</a><br />
-    <strong>Marketing:</strong> <a href="mailto:Marketing@example.com">Marketing@example.com</a>
-</address>
